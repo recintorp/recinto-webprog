@@ -1,31 +1,38 @@
-import React from "react";
-import './App.css';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+import Layout from './components/Layout';
+import ArticlePage from './pages/ArticlePage';
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+
+const routes = [
+  {
+    path: '/',
+    element: <Layout />,
+    children: [
+      {
+        path: '',
+        element: <HomePage />,
+      },
+      {
+        path: 'about',
+        element: <AboutPage />,
+      },
+      {
+        path: 'articles',
+        element: <ArticlePage />,
+      },
+    ],
+  },
+];
+
+const router = createBrowserRouter(routes);
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Welcome to My React Application!</h1>
-        
-        <div className="profile-info">
-          <p>
-            <strong>Name:</strong> Rafael Alexis P. Recinto<br />
-            <strong>Email:</strong> yndraking@gmail.com<br />
-            <strong>GitHub Repository:</strong>
-          </p>
-          
-          <div className="links">
-            <a 
-              href="https://github.com/recintorp/recinto-webprog.git" 
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              View My WebProg Project
-            </a>
-          </div>
-        </div>
-      </header>
-    </div>
+    <>
+      <RouterProvider router={router} />
+    </>
   );
 }
 
