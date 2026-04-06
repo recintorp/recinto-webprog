@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 
 const variantClasses = {
-  primary: 'bg-zinc-900 text-zinc-50 hover:bg-zinc-700',
-  secondary: 'bg-zinc-50 text-zinc-900 hover:bg-zinc-200',
+  primary: 'bg-zinc-950 text-white border border-zinc-950 hover:bg-amber-500 hover:border-amber-500',
+  secondary: 'bg-transparent text-zinc-950 border border-zinc-950 hover:bg-amber-500 hover:border-amber-500 hover:text-white',
 };
 
 const Button = ({
@@ -11,9 +11,10 @@ const Button = ({
   type = 'button',
   variant = 'secondary',
   className = '',
+  onClick
 }) => {
   const classes = [
-    'inline-flex items-center justify-center rounded-full border-2 border-zinc-900 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] transition',
+    'inline-flex items-center justify-center px-8 py-3 text-xs font-bold uppercase tracking-widest transition-colors duration-300',
     variantClasses[variant] ?? variantClasses.secondary,
     className,
   ]
@@ -22,14 +23,14 @@ const Button = ({
 
   if (to) {
     return (
-      <Link to={to} className={classes}>
+      <Link to={to} className={classes} onClick={onClick}>
         {children}
       </Link>
     );
   }
 
   return (
-    <button type={type} className={classes}>
+    <button type={type} className={classes} onClick={onClick}>
       {children}
     </button>
   );
