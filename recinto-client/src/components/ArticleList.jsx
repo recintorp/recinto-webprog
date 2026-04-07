@@ -1,20 +1,14 @@
 import { Link } from 'react-router-dom';
 import Button from './Button';
-import concept1 from '../assets/concept.jpg';
-import concept2 from '../assets/concept2.jpg';
-import concept3 from '../assets/concept3.jpg';
-import concept4 from '../assets/concept4.jpg';
 
 const ArticleList = ({ articles }) => {
-  const images = [concept1, concept2, concept3, concept4];
-
   return (
     <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-4">
       {articles.map((article, index) => (
         <article key={article.name} className="group flex flex-col bg-white border border-zinc-200 p-6 transition-all duration-300 hover:border-amber-500 hover:shadow-[6px_6px_0px_0px_#f59e0b]">
-          <div className="overflow-hidden aspect-[4/3] bg-zinc-100 border border-zinc-200">
+          <div className="overflow-hidden aspect-4/3 bg-zinc-100 border border-zinc-200">
             <img 
-              src={images[index % images.length]} 
+              src={article.image} 
               alt={article.title} 
               className="h-full w-full object-cover grayscale transition-all duration-700 group-hover:scale-110 group-hover:grayscale-0"
             />

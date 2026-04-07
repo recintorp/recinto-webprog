@@ -1,10 +1,19 @@
 import { useParams } from 'react-router-dom';
 import Button from '../components/Button';
-import articles from '../assets/article-content.js';
+import articlesData from '../assets/article-content.js';
+import concept1 from '../assets/concept.jpg';
+import concept2 from '../assets/concept2.jpg';
+import concept3 from '../assets/concept3.jpg';
+import concept4 from '../assets/concept4.jpg';
 
 function ArticlePage() {
   const { name } = useParams();
-  const article = articles.find(article => article.name === name);
+  
+  const articleIndex = articlesData.findIndex(article => article.name === name);
+  const article = articlesData[articleIndex];
+  
+  const images = [concept1, concept2, concept3, concept4];
+  const articleImage = images[articleIndex % images.length] || concept1;
 
   if (!article) {
     return (
@@ -12,7 +21,7 @@ function ArticlePage() {
         <h1 className="text-4xl font-black text-zinc-950 uppercase tracking-widest">Document Not Found</h1>
         <div className="mt-6 h-1 w-24 bg-amber-500 mx-auto"></div>
         <div className="mt-10">
-          <Button to="/articles" className="inline-block bg-zinc-950 px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-amber-500 transition-colors duration-300">
+          <Button to="/articles" variant="primary" className="px-8 py-4 inline-block">
             Return to Library
           </Button>
         </div>
@@ -43,8 +52,12 @@ function ArticlePage() {
 
       <section className="bg-zinc-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="mx-auto max-w-3xl w-full">
-          <div className="flex aspect-video items-center justify-center bg-zinc-200 border border-zinc-300 mb-12 shadow-[8px_8px_0px_0px_#f59e0b]">
-            <div className="h-24 w-24 border-[4px] border-amber-500 transform rotate-45" />
+          <div className="aspect-video overflow-hidden bg-zinc-200 border border-zinc-300 mb-12 shadow-[8px_8px_0px_0px_#f59e0b]">
+            <img 
+              src={articleImage} 
+              alt={article.title} 
+              className="h-full w-full object-cover grayscale"
+            />
           </div>
 
           <div className="space-y-8 text-zinc-800">
@@ -56,7 +69,7 @@ function ArticlePage() {
           </div>
 
           <div className="mt-16 border-t-4 border-zinc-950 pt-12 text-center md:text-left">
-            <Button to="/articles" className="bg-zinc-950 text-white hover:bg-amber-500 transition-colors duration-300 px-10 py-4 uppercase tracking-widest text-xs font-bold inline-block">
+            <Button to="/articles" variant="primary" className="px-10 py-4 inline-block">
               Return to Index
             </Button>
           </div>

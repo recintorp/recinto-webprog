@@ -1,8 +1,17 @@
 import Button from '../components/Button';
 import ArticleList from '../components/ArticleList';
-import articles from '../assets/article-content.js';
+import articlesData from '../assets/article-content.js';
+import concept1 from '../assets/concept.jpg';
+import concept2 from '../assets/concept2.jpg';
+import concept3 from '../assets/concept3.jpg';
+import concept4 from '../assets/concept4.jpg';
 
 const ArticleListPage = () => {
+  const articles = articlesData.map((article, index) => ({
+    ...article,
+    image: [concept1, concept2, concept3, concept4][index] || concept1
+  }));
+
   return (
     <div className="flex w-full flex-col gap-6">
       <section className="border-y bg-white px-4 py-6 sm:px-6 sm:py-16 lg:px-8 border-zinc-200">
