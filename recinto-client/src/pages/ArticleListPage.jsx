@@ -5,11 +5,12 @@ import concept1 from '../assets/concept.jpg';
 import concept2 from '../assets/concept2.jpg';
 import concept3 from '../assets/concept3.jpg';
 import concept4 from '../assets/concept4.jpg';
+import concept5 from '../assets/concept5.jpg';
 
 const ArticleListPage = () => {
   const articles = articlesData.map((article, index) => ({
     ...article,
-    image: [concept1, concept2, concept3, concept4][index] || concept1
+    image: [concept1, concept2, concept3, concept4, concept5][index] || concept1
   }));
 
   return (
