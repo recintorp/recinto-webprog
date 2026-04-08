@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-8">
         <div className="text-center md:text-left">
           <h2 className="text-2xl font-bold tracking-widest text-amber-500 uppercase">
-            NU Architecture
+            Valence Studio
           </h2>
           <p className="mt-2 text-sm text-zinc-400 tracking-wide">
             Designing spaces, shaping the future.
@@ -27,7 +27,7 @@ const Footer = () => {
       </div>
       
       <div className="mt-12 text-center text-xs text-zinc-600 border-t border-zinc-800 pt-8 tracking-wider">
-        © {new Date().getFullYear()} National University Architecture Portfolio. All rights reserved.
+        © {new Date().getFullYear()} Valence Studio Architecture Portfolio. All rights reserved.
       </div>
     </footer>
   );

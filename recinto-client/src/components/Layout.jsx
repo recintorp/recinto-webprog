@@ -6,7 +6,6 @@ import Footer from './Footer';
 
 const Layout = () => {
   const location = useLocation();
-
   return (
     <div className="min-h-screen flex flex-col bg-white text-zinc-950 selection:bg-amber-500 selection:text-white">
       <NavBar />
@@ -18,7 +17,7 @@ const Layout = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -15 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="flex-grow pb-16 pt-24"
+          className="grow pb-16 pt-24"
         >
           <Outlet />
         </motion.main>
