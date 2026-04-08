@@ -10,10 +10,8 @@ import NotFoundPage from './pages/NotFoundPage';
 const routes = [{
   path: '/',
   element: <Layout />,
-  // Error element
   errorElement: <NotFoundPage />,
   children: [{
-      // Path declaration
       path: '/',
       element: <HomePage />
     },
@@ -26,7 +24,7 @@ const routes = [{
       element: <ArticleListPage />
     },
     {
-      path: '/articles/:name', // -->articles/learn-react
+      path: '/articles/:name', 
       element: <ArticlePage />
     }
   ]
