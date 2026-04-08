@@ -1,10 +1,10 @@
-import Button from '../components/Button';
-import designer from '../assets/designer.jpg';
-import designer2 from '../assets/designer2.jpg';
-import nar1 from '../assets/nar.jpg';
-import nar2 from '../assets/nar2.jpg';
-import nar3 from '../assets/nar3.jpg';
-import nar4 from '../assets/nar4.jpg';
+import Button from '../../components/Button';
+import designer from '../../assets/designer.jpg';
+import designer2 from '../../assets/designer2.jpg';
+import nar1 from '../../assets/nar.jpg';
+import nar2 from '../../assets/nar2.jpg';
+import nar3 from '../../assets/nar3.jpg';
+import nar4 from '../../assets/nar4.jpg';
 
 const AboutPage = () => {
   const visualNarrative = [

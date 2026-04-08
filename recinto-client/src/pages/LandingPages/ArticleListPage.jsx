@@ -1,11 +1,11 @@
-import Button from '../components/Button';
-import ArticleList from '../components/ArticleList';
-import articlesData from '../assets/article-content.js';
-import concept1 from '../assets/concept.jpg';
-import concept2 from '../assets/concept2.jpg';
-import concept3 from '../assets/concept3.jpg';
-import concept4 from '../assets/concept4.jpg';
-import concept5 from '../assets/concept5.jpg';
+import Button from '../../components/Button';
+import ArticleList from '../../components/ArticleList';
+import articlesData from '../../assets/article-content.js';
+import concept1 from '../../assets/concept.jpg';
+import concept2 from '../../assets/concept2.jpg';
+import concept3 from '../../assets/concept3.jpg';
+import concept4 from '../../assets/concept4.jpg';
+import concept5 from '../../assets/concept5.jpg';
 
 const ArticleListPage = () => {
   const articles = articlesData.map((article, index) => ({

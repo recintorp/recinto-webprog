@@ -1,5 +1,6 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import logo from '../assets/logooo.png';
+import Button from './Button';
 
 const links = [
   { label: 'Home', to: '/' },
@@ -36,18 +37,37 @@ const NavBar = () => {
           </div>
         </NavLink>
 
-        <nav className="flex items-center gap-2">
-          {links.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.to === '/'}
-              className={navLinkClassName}
+        <div className="flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-2">
+            {links.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.to === '/'}
+                className={navLinkClassName}
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="h-6 w-px bg-zinc-300 hidden md:block"></div>
+
+          <div className="flex items-center gap-5">
+            <Link 
+              to="/login" 
+              className="text-[11px] font-bold uppercase tracking-[0.24em] text-zinc-500 transition-colors hover:text-amber-500"
             >
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
+              Log In
+            </Link>
+            <Button 
+              to="/signup" 
+              className="border border-zinc-950 bg-white px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-950 transition-all hover:bg-amber-500 hover:border-amber-500 hover:text-white"
+            >
+              Sign Up
+            </Button>
+          </div>
+        </div>
 
       </div>
     </header>

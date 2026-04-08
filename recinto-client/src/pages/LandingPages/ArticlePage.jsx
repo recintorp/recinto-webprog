@@ -1,10 +1,11 @@
 import { useParams } from 'react-router-dom';
-import Button from '../components/Button';
-import articlesData from '../assets/article-content.js';
-import concept1 from '../assets/concept.jpg';
-import concept2 from '../assets/concept2.jpg';
-import concept3 from '../assets/concept3.jpg';
-import concept4 from '../assets/concept4.jpg';
+import Button from '../../components/Button';
+import articlesData from '../../assets/article-content.js';
+import concept1 from '../../assets/concept.jpg';
+import concept2 from '../../assets/concept2.jpg';
+import concept3 from '../../assets/concept3.jpg';
+import concept4 from '../../assets/concept4.jpg';
+import concept5 from '../../assets/concept5.jpg';
 
 function ArticlePage() {
   const { name } = useParams();
@@ -12,7 +13,7 @@ function ArticlePage() {
   const articleIndex = articlesData.findIndex(article => article.name === name);
   const article = articlesData[articleIndex];
   
-  const images = [concept1, concept2, concept3, concept4];
+  const images = [concept1, concept2, concept3, concept4, concept5];
   const articleImage = images[articleIndex % images.length] || concept1;
 
   if (!article) {
