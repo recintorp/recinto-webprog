@@ -6,7 +6,7 @@ import ArticlePage from './pages/LandingPages/ArticlePage';
 import HomePage from './pages/LandingPages/HomePage';
 import AboutPage from './pages/LandingPages/AboutPage';
 import ArticleListPage from './pages/LandingPages/ArticleListPage';
-import AuthLayout from './layouts/AuthLayout';
+import AuthLayout from './layouts/AuthLayout';  
 import SignInPage from './pages/AuthPages/SignInPage';
 import SignUpPage from './pages/AuthPages/SignUpPage';
 import NotFoundPage from './pages/NotFoundPage';

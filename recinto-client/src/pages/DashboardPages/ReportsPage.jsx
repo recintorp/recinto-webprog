@@ -1,155 +1,323 @@
-import React from 'react';
-import { Typography, Card, CardContent, Box, Grid } from '@mui/material';
-import { LineChart } from '@mui/x-charts/LineChart';
-import { BarChart } from '@mui/x-charts/BarChart';
-import { PieChart } from '@mui/x-charts/PieChart';
+import { useRef, useState } from 'react';
+import { 
+  Box, 
+  Button, 
+  Card, 
+  CardContent, 
+  Stack, 
+  Typography, 
+  TextField, 
+  MenuItem,
+  alpha 
+} from "@mui/material";
+import { BarChart } from "@mui/x-charts/BarChart";
+import { Gauge } from "@mui/x-charts/Gauge";
+import { DataGrid } from '@mui/x-data-grid';
 
-const lineChartData = [
-  { month: 'Jan', revenue: 4000, costs: 2400 },
-  { month: 'Feb', revenue: 3000, costs: 1398 },
-  { month: 'Mar', revenue: 2000, costs: 9800 },
-  { month: 'Apr', revenue: 2780, costs: 3908 },
-  { month: 'May', revenue: 1890, costs: 4800 },
-  { month: 'Jun', revenue: 2390, costs: 3800 },
-  { month: 'Jul', revenue: 3490, costs: 4300 },
+const columns = [
+  { field: 'id', headerName: 'ID', width: 60 },
+  { field: 'firstName', headerName: 'First name', width: 130 },
+  { field: 'lastName', headerName: 'Last name', width: 130 },
+  { field: 'username', headerName: 'Username', width: 130 },
+  { field: 'email', headerName: 'Email', width: 180 },
+  { field: 'role', headerName: 'Role', width: 100 },
+  { field: 'gender', headerName: 'Gender', width: 90 },
+  { 
+    field: 'isActive', 
+    headerName: 'Status', 
+    width: 100,
+    valueGetter: (value) => value ? 'Active' : 'Inactive'
+  },
 ];
 
-const userAgesData = [
-  { name: 'Jon S.', age: 14 },
-  { name: 'Cersei L.', age: 31 },
-  { name: 'Jaime L.', age: 31 },
-  { name: 'Arya S.', age: 11 },
-  { name: 'Ferrara C.', age: 44 },
-  { name: 'Rossini F.', age: 36 },
-  { name: 'Harvey R.', age: 65 },
-  { name: 'Melisandre', age: 150 },
+// Enriched dummy data to make the filters functional
+const rows = [
+  { id: 1, lastName: 'Snow', firstName: 'Jon', age: 14, username: 'jsnow', email: 'jon@stark.com', role: 'admin', gender: 'male', isActive: true },
+  { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 31, username: 'cersei_l', email: 'cersei@lannister.com', role: 'editor', gender: 'female', isActive: false },
+  { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 31, username: 'kingslayer', email: 'jaime@lannister.com', role: 'viewer', gender: 'male', isActive: true },
+  { id: 4, lastName: 'Stark', firstName: 'Arya', age: 11, username: 'no_one', email: 'arya@stark.com', role: 'editor', gender: 'female', isActive: true },
+  { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: 25, username: 'motherofdragons', email: 'dany@dragon.com', role: 'admin', gender: 'female', isActive: true },
+  { id: 6, lastName: 'Melisandre', firstName: 'Lady', age: 150, username: 'red_woman', email: 'lady@light.com', role: 'viewer', gender: 'female', isActive: false },
+  { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44, username: 'ferrara_c', email: 'ferrara@test.com', role: 'viewer', gender: 'male', isActive: true },
+  { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36, username: 'rossini_f', email: 'rossini@test.com', role: 'editor', gender: 'female', isActive: false },
+  { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65, username: 'harvey_r', email: 'harvey@test.com', role: 'admin', gender: 'male', isActive: true },
 ];
 
-const ageGroupsData = [
-  { id: 0, value: 2, label: 'Under 18' },
-  { id: 1, value: 2, label: '18 - 35' },
-  { id: 2, value: 2, label: '36 - 60' },
-  { id: 3, value: 2, label: 'Over 60' },
-];
+const ReportsPage = () => {
+  const printRef = useRef(null);
 
-const chartColors = ['#8B5CF6', '#C084FC', '#6D28D9', '#A855F7'];
+  // Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [genderFilter, setGenderFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
-function ReportsPage() {
+  // Filter Logic
+  const filteredRows = rows.filter((row) => {
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = 
+      !searchQuery || 
+      (row.firstName?.toLowerCase().includes(searchLower)) ||
+      (row.lastName?.toLowerCase().includes(searchLower)) ||
+      (row.email?.toLowerCase().includes(searchLower)) ||
+      (row.username?.toLowerCase().includes(searchLower));
+    
+    const matchesRole = !roleFilter || row.role === roleFilter;
+    const matchesGender = !genderFilter || row.gender === genderFilter;
+    const matchesStatus = statusFilter === '' || row.isActive === (statusFilter === 'active');
+
+    return matchesSearch && matchesRole && matchesGender && matchesStatus;
+  });
+
+  const handlePrint = () => {
+    const printContent = printRef.current;
+
+    if (!printContent) return;
+
+    const printWindow = window.open('', '_blank', 'width=1200,height=900');
+    if (!printWindow) return;
+
+    const headMarkup = Array.from(
+      document.querySelectorAll('style, link[rel="stylesheet"]')
+    )
+      .map((node) => node.outerHTML)
+      .join('');
+
+    const exportedAt = new Intl.DateTimeFormat('en-US', {
+      dateStyle: 'long',
+      timeStyle: 'short',
+    }).format(new Date());
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>Exported Report</title>
+          ${headMarkup}
+          <style>
+            @page { size: A4 landscape; margin: 16mm; }
+            * { box-sizing: border-box; }
+            body {
+              margin: 0;
+              font-family: Arial, Helvetica, sans-serif;
+              background: #fff;
+              color: #1f2937;
+            }
+            .report-shell { padding: 20px; }
+            .report-header {
+              margin-bottom: 24px;
+              padding-bottom: 14px;
+              border-bottom: 2px solid #8B5CF6;
+            }
+            .report-header h1 {
+              margin: 0 0 6px;
+              font-size: 24px;
+              color: #8B5CF6;
+            }
+            .report-header p {
+              margin: 0;
+              font-size: 14px;
+              color: #6b7280;
+              line-height: 1.5;
+            }
+            .filter-summary {
+              background: #f3f4f6;
+              padding: 10px;
+              border-radius: 4px;
+              margin-top: 10px;
+              font-size: 13px;
+            }
+            /* Clean up print view to avoid dark mode artifacts */
+            .report-content .MuiCard-root, .report-content .MuiBox-root {
+              box-shadow: none !important;
+              border: 1px solid #e5e7eb !important;
+              background: #fff !important;
+              color: #000 !important;
+              break-inside: avoid;
+              page-break-inside: avoid;
+              margin-bottom: 20px;
+            }
+            .report-content .MuiCardContent-root { padding: 20px; }
+            .report-content svg { max-width: 100%; }
+            .report-content .MuiTypography-root { color: #000 !important; }
+          </style>
+        </head>
+        <body>
+          <main class="report-shell">
+            <header class="report-header">
+              <h1>Official Reports Summary</h1>
+              <p>Analytics overview for generated reports, category breakdown, and current user data.</p>
+              <p><strong>Prepared on:</strong> ${exportedAt}</p>
+              <div class="filter-summary">
+                <strong>Applied Filters:</strong> 
+                Search: "${searchQuery || 'None'}" | 
+                Role: ${roleFilter || 'All'} | 
+                Gender: ${genderFilter || 'All'} | 
+                Status: ${statusFilter || 'All'}
+              </div>
+            </header>
+            <section class="report-content">
+              ${printContent.outerHTML}
+            </section>
+          </main>
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); }, 500); 
+  };
+
+  // Shared styles derived from Dashboard.jsx
+  const darkCardSx = {
+    backgroundColor: '#0a0710',
+    border: '1px solid rgba(139, 92, 246, 0.15)',
+    borderRadius: 4,
+    boxShadow: '0 15px 35px -15px rgba(0,0,0,0.7)',
+    color: '#ffffff'
+  };
+
+  const darkInputSx = {
+    '& .MuiOutlinedInput-root': {
+      color: '#ffffff',
+      backgroundColor: 'rgba(10, 7, 16, 0.5)',
+      borderRadius: 2,
+      '& fieldset': { borderColor: 'rgba(139, 92, 246, 0.2)' },
+      '&:hover fieldset': { borderColor: 'rgba(139, 92, 246, 0.4)' },
+      '&.Mui-focused fieldset': { borderColor: '#8B5CF6' },
+    },
+    '& .MuiInputLabel-root': { color: '#a1a1aa' },
+    '& .MuiInputLabel-root.Mui-focused': { color: '#C084FC' },
+    '& .MuiSvgIcon-root': { color: '#a1a1aa' }
+  };
+
+  const darkMenuProps = {
+    PaperProps: {
+      sx: {
+        bgcolor: '#0a0710',
+        color: '#ffffff',
+        border: '1px solid rgba(139, 92, 246, 0.2)',
+        '& .MuiMenuItem-root:hover': {
+          backgroundColor: alpha('#8B5CF6', 0.15),
+        },
+        '& .Mui-selected': {
+          backgroundColor: alpha('#8B5CF6', 0.25) + ' !important',
+        }
+      }
+    }
+  };
+
   return (
-    <Box sx={{ width: '100%', pb: 8, display: 'block' }}>
-      
-      <Box sx={{ mb: 5, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Box sx={{ height: '2px', width: 40, background: 'linear-gradient(90deg, #8B5CF6, transparent)' }} />
-        <Typography 
-          variant="h4" 
+    <Box sx={{ width: '100%', pb: 8 }}>
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        justifyContent="space-between"
+        alignItems={{ xs: 'flex-start', md: 'center' }}
+        spacing={2}
+        sx={{ mb: 5 }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ height: '2px', width: 40, background: 'linear-gradient(90deg, #8B5CF6, transparent)' }} />
+          <Typography variant="h4" sx={{ fontWeight: 300, color: '#ffffff', letterSpacing: '0.05em', fontSize: '1.8rem' }}>
+            Reports & Analytics
+          </Typography>
+        </Box>
+        <Button 
+          variant="outlined" 
+          onClick={handlePrint}
           sx={{ 
-            fontWeight: 300, 
-            color: '#ffffff', 
-            letterSpacing: '0.05em',
-            fontSize: '1.8rem'
+            color: '#C084FC', 
+            borderColor: 'rgba(139, 92, 246, 0.5)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            borderRadius: 2,
+            px: 3,
+            '&:hover': {
+              borderColor: '#C084FC',
+              backgroundColor: alpha('#8B5CF6', 0.1)
+            }
           }}
         >
-          Reports
-        </Typography>
-      </Box>
+          Export PDF Report
+        </Button>
+      </Stack>
 
-      <Grid container spacing={4} sx={{ mb: 6 }}>
-        <Grid item xs={12} md={4}>
-          <Card sx={{ 
-            background: 'linear-gradient(145deg, rgba(10,7,16,1) 0%, rgba(17,12,28,1) 100%)', 
-            border: '1px solid rgba(139, 92, 246, 0.15)', 
-            borderRadius: 4, 
-            boxShadow: '0 10px 30px -10px rgba(0,0,0,0.6)',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.3s ease',
-            '&:hover': { transform: 'translateY(-4px)', border: '1px solid rgba(139, 92, 246, 0.4)', boxShadow: '0 15px 35px -10px rgba(139,92,246,0.2)' }
-          }}>
-            <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', backgroundColor: '#8B5CF6', boxShadow: '0 0 15px #8B5CF6' }} />
-            <CardContent sx={{ p: 4 }}>
-              <Typography variant="overline" sx={{ color: '#C084FC', fontWeight: 'bold', letterSpacing: '0.15em' }}>
-                Q3 Projected Revenue
-              </Typography>
-              <Typography variant="h3" sx={{ color: '#ffffff', fontWeight: 200, mt: 1, textShadow: '0 0 25px rgba(139, 92, 246, 0.4)' }}>
-                $4.2M
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        
-        <Grid item xs={12} md={4}>
-          <Card sx={{ 
-            background: 'linear-gradient(145deg, rgba(10,7,16,1) 0%, rgba(17,12,28,1) 100%)', 
-            border: '1px solid rgba(139, 92, 246, 0.15)', 
-            borderRadius: 4, 
-            boxShadow: '0 10px 30px -10px rgba(0,0,0,0.6)',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.3s ease',
-            '&:hover': { transform: 'translateY(-4px)', border: '1px solid rgba(192, 132, 252, 0.4)', boxShadow: '0 15px 35px -10px rgba(192,132,252,0.2)' }
-          }}>
-            <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', backgroundColor: '#C084FC', boxShadow: '0 0 15px #C084FC' }} />
-            <CardContent sx={{ p: 4 }}>
-              <Typography variant="overline" sx={{ color: '#C084FC', fontWeight: 'bold', letterSpacing: '0.15em' }}>
-                Active Blueprints
-              </Typography>
-              <Typography variant="h3" sx={{ color: '#ffffff', fontWeight: 200, mt: 1, textShadow: '0 0 25px rgba(192, 132, 252, 0.4)' }}>
-                18
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        
-        <Grid item xs={12} md={4}>
-          <Card sx={{ 
-            background: 'linear-gradient(145deg, rgba(10,7,16,1) 0%, rgba(17,12,28,1) 100%)', 
-            border: '1px solid rgba(139, 92, 246, 0.15)', 
-            borderRadius: 4, 
-            boxShadow: '0 10px 30px -10px rgba(0,0,0,0.6)',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.3s ease',
-            '&:hover': { transform: 'translateY(-4px)', border: '1px solid rgba(109, 40, 217, 0.4)', boxShadow: '0 15px 35px -10px rgba(109, 40, 217, 0.2)' }
-          }}>
-            <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', backgroundColor: '#6D28D9', boxShadow: '0 0 15px #6D28D9' }} />
-            <CardContent sx={{ p: 4 }}>
-              <Typography variant="overline" sx={{ color: '#C084FC', fontWeight: 'bold', letterSpacing: '0.15em' }}>
-                Sustainability Score
-              </Typography>
-              <Typography variant="h3" sx={{ color: '#ffffff', fontWeight: 200, mt: 1, textShadow: '0 0 25px rgba(109, 40, 217, 0.4)' }}>
-                92%
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+      {/* SEARCH & FILTER BAR */}
+      <Card sx={{ mb: 6, ...darkCardSx }}>
+        <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
+            <TextField
+              label="Search (Name, Username, Email)"
+              variant="outlined"
+              size="small"
+              fullWidth
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={darkInputSx}
+            />
+            <TextField
+              select
+              label="Role"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              size="small"
+              sx={{ minWidth: 140, ...darkInputSx }}
+              SelectProps={{ MenuProps: darkMenuProps }}
+            >
+              <MenuItem value="">All Roles</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="editor">Editor</MenuItem>
+              <MenuItem value="viewer">Viewer</MenuItem>
+            </TextField>
+            <TextField
+              select
+              label="Gender"
+              value={genderFilter}
+              onChange={(e) => setGenderFilter(e.target.value)}
+              size="small"
+              sx={{ minWidth: 140, ...darkInputSx }}
+              SelectProps={{ MenuProps: darkMenuProps }}
+            >
+              <MenuItem value="">All Genders</MenuItem>
+              <MenuItem value="male">Male</MenuItem>
+              <MenuItem value="female">Female</MenuItem>
+              <MenuItem value="other">Other</MenuItem>
+            </TextField>
+            <TextField
+              select
+              label="Status"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              size="small"
+              sx={{ minWidth: 140, ...darkInputSx }}
+              SelectProps={{ MenuProps: darkMenuProps }}
+            >
+              <MenuItem value="">All Statuses</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="inactive">Inactive</MenuItem>
+            </TextField>
+          </Stack>
+        </CardContent>
+      </Card>
 
-      <Grid container spacing={4} sx={{ mb: 6, alignItems: 'stretch' }}>
-        <Grid item xs={12} lg={7}>
-          <Box sx={{ 
-            backgroundColor: '#0a0710', 
-            border: '1px solid rgba(139, 92, 246, 0.15)', 
-            borderRadius: 6, 
-            p: 4,
-            height: '100%',
-            minHeight: '450px',
-            display: 'flex', 
-            flexDirection: 'column',
-            boxShadow: '0 20px 40px -20px rgba(0,0,0,0.7)'
-          }}>
-            <Typography variant="button" sx={{ color: '#a1a1aa', mb: 2, letterSpacing: '0.2em', fontSize: '0.75rem' }}>
-              User Age Distribution
+      <Stack ref={printRef} spacing={6}>
+        <Stack direction={{ xs: 'column', lg: 'row' }} spacing={6}>
+          <Box sx={{ flex: 1, p: 4, ...darkCardSx, display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="button" sx={{ color: '#a1a1aa', mb: 3, letterSpacing: '0.2em', fontSize: '0.75rem' }}>
+              Monthly Report Output
             </Typography>
-            
-            <Box sx={{ flexGrow: 1, width: '100%', mt: 2, display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
               <BarChart
-                dataset={userAgesData}
-                xAxis={[{ scaleType: 'band', dataKey: 'name', label: 'User Names' }]}
+                colors={['#8B5CF6', '#C084FC']}
                 series={[
-                  { dataKey: 'age', label: 'Age', color: '#8B5CF6' }
+                  { data: [18, 24, 20, 27], label: "Generated" },
+                  { data: [12, 19, 17, 23], label: "Completed" },
                 ]}
-                width={800}
-                height={350}
+                height={280}
+                xAxis={[{ data: ["January", "February", "March", "April"], scaleType: 'band' }]}
                 sx={{
                   '& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel, & .MuiChartsAxis-left .MuiChartsAxis-tickLabel': { fill: '#a1a1aa' },
                   '& .MuiChartsAxis-bottom .MuiChartsAxis-line, & .MuiChartsAxis-left .MuiChartsAxis-line': { stroke: 'rgba(255,255,255,0.1)' },
@@ -157,105 +325,92 @@ function ReportsPage() {
                   '& .MuiChartsLegend-series text': { fill: '#ffffff !important' },
                   '& .MuiChartsAxis-bottom .MuiChartsAxis-label': { fill: '#a1a1aa', fontSize: '12px' },
                 }}
-                margin={{ left: 40, right: 20, top: 20, bottom: 40 }}
               />
             </Box>
           </Box>
-        </Grid>
-        
-        <Grid item xs={12} lg={5}>
-          <Box sx={{ 
-            backgroundColor: '#0a0710', 
-            border: '1px solid rgba(139, 92, 246, 0.15)', 
-            borderRadius: 6, 
-            p: 4, 
-            display: 'flex', 
-            flexDirection: 'column',
-            alignItems: 'center', 
-            height: '100%',
-            minHeight: '450px',
-            boxShadow: '0 20px 40px -20px rgba(0,0,0,0.7)'
-          }}>
-            <Box sx={{ width: '100%', mb: 4 }}>
-              <Typography variant="button" sx={{ color: '#a1a1aa', letterSpacing: '0.2em', fontSize: '0.75rem' }}>
-                Age Demographics
-              </Typography>
-            </Box>
-            <Box sx={{ flexGrow: 1, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <PieChart
-                colors={chartColors}
-                series={[
-                  {
-                    data: ageGroupsData,
-                    innerRadius: 30,
-                    paddingAngle: 3,
-                    cornerRadius: 6,
-                  },
-                ]}
-                width={350}
-                height={300}
-                sx={{
-                  '& .MuiChartsLegend-series text': { fill: '#ffffff !important' },
-                }}
-                margin={{ left: 10, right: 10, top: 10, bottom: 10 }}
-              />
-            </Box>
-          </Box>
-        </Grid>
-      </Grid>
 
-      <Box sx={{ mb: 3, mt: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Typography variant="overline" sx={{ fontWeight: 'bold', color: '#8B5CF6', letterSpacing: '0.2em', fontSize: '0.75rem' }}>
-          Financial Overview (YTD)
-        </Typography>
-        <Box sx={{ flexGrow: 1, height: '1px', background: 'rgba(139, 92, 246, 0.2)' }} />
-      </Box>
-      
-      <Box sx={{ 
-        width: '100%', 
-        backgroundColor: '#0a0710', 
-        border: '1px solid rgba(139, 92, 246, 0.15)', 
-        borderRadius: 6, 
-        p: 4, 
-        mb: 6,
-        boxShadow: '0 20px 40px -20px rgba(0,0,0,0.7)',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
-        <Box sx={{ flexGrow: 1, width: '100%', display: 'flex', justifyContent: 'center' }}>
-          <LineChart
-            colors={['#C084FC', '#6D28D9']}
-            series={[
-              { data: lineChartData.map((d) => d.revenue), label: 'Revenue (k$)', showMark: true },
-              { data: lineChartData.map((d) => d.costs), label: 'Operating Costs (k$)', showMark: true },
-            ]}
-            xAxis={[{ scaleType: 'point', data: lineChartData.map((d) => d.month) }]}
-            width={1200}
-            height={400}
-            margin={{ top: 40, bottom: 40, left: 60, right: 40 }}
+          <Box sx={{ flex: 1, p: 4, ...darkCardSx, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ width: '100%', mb: 3 }}>
+               <Typography variant="button" sx={{ color: '#a1a1aa', letterSpacing: '0.2em', fontSize: '0.75rem' }}>
+                 Completion Rate
+               </Typography>
+            </Box>
+            <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Gauge 
+                width={220} 
+                height={220} 
+                value={78} 
+                sx={{
+                  '& .MuiGauge-valueArc': { fill: '#8B5CF6' },
+                  '& .MuiGauge-referenceArc': { fill: 'rgba(139, 92, 246, 0.15)' },
+                  '& .MuiGauge-valueText': { fill: '#ffffff', fontSize: '2.5rem', fontWeight: 300 },
+                }}
+              />
+            </Box>
+          </Box>
+        </Stack>
+
+        <Box sx={{ mb: 1, mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Typography variant="overline" sx={{ fontWeight: 'bold', color: '#8B5CF6', letterSpacing: '0.2em', fontSize: '0.75rem' }}>
+            Filtered User Data ({filteredRows.length} Results)
+          </Typography>
+          <Box sx={{ flexGrow: 1, height: '1px', background: 'rgba(139, 92, 246, 0.2)' }} />
+        </Box>
+
+        <Box sx={{ width: '100%' }}>
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: { pageSize: 5 },
+              },
+            }}
+            pageSizeOptions={[5, 10]}
+            disableRowSelectionOnClick
+            autoHeight
             sx={{
-              '.MuiLineElement-root': {
-                strokeWidth: 4,
+              border: '1px solid rgba(139, 92, 246, 0.15)',
+              borderRadius: 4,
+              backgroundColor: '#0a0710',
+              color: '#ffffff',
+              boxShadow: '0 15px 35px -15px rgba(0,0,0,0.7)',
+              p: 2,
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: alpha('#8B5CF6', 0.05),
+                color: '#C084FC',
+                borderBottom: '1px solid rgba(139, 92, 246, 0.2)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                fontSize: '0.75rem',
               },
-              '.MuiMarkElement-root': {
-                scale: '1.2',
-                fill: '#0a0710',
-                strokeWidth: 2,
+              '& .MuiDataGrid-cell': {
+                borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                color: '#a1a1aa',
+                fontSize: '0.85rem',
               },
-              '& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel, & .MuiChartsAxis-left .MuiChartsAxis-tickLabel': {
-                fill: '#a1a1aa',
+              '& .MuiDataGrid-row:hover': {
+                backgroundColor: alpha('#8B5CF6', 0.08),
               },
-              '& .MuiChartsAxis-bottom .MuiChartsAxis-line, & .MuiChartsAxis-left .MuiChartsAxis-line': {
-                stroke: 'rgba(255,255,255,0.1)',
+              '& .MuiDataGrid-footerContainer': {
+                borderTop: '1px solid rgba(139, 92, 246, 0.1)',
+                color: '#a1a1aa',
               },
-              '& .MuiChartsLegend-series text': { fill: '#ffffff !important' },
+              '& .MuiTablePagination-root': {
+                color: '#a1a1aa',
+              },
+              '& .MuiTablePagination-selectIcon': {
+                color: '#a1a1aa',
+              },
+              '& .MuiIconButton-root': {
+                color: '#a1a1aa',
+              }
             }}
           />
         </Box>
-      </Box>
-
+      </Stack>
     </Box>
   );
-}
+};
 
 export default ReportsPage;
