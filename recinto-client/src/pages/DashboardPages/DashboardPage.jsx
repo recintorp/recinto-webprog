@@ -3,6 +3,8 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { DataGrid } from '@mui/x-data-grid';
 import { Typography, Card, CardContent, Box, Grid, alpha } from '@mui/material';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const columns = [
   { field: 'id', headerName: 'ID', width: 70 },
@@ -154,7 +156,7 @@ function DashboardPage() {
         <Box sx={{ flexGrow: 1, height: '1px', background: 'rgba(139, 92, 246, 0.2)' }} />
       </Box>
 
-      <Box sx={{ height: 450, width: '100%', mb: 4 }}>
+      <Box sx={{ height: 450, width: '100%', mb: 6 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -207,6 +209,52 @@ function DashboardPage() {
             }
           }}
         />
+      </Box>
+
+      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Typography variant="overline" sx={{ fontWeight: 'bold', color: '#8B5CF6', letterSpacing: '0.2em', fontSize: '0.75rem' }}>
+          Geographic Location
+        </Typography>
+        <Box sx={{ flexGrow: 1, height: '1px', background: 'rgba(139, 92, 246, 0.2)' }} />
+      </Box>
+
+      <Box sx={{ 
+        height: 500, 
+        width: '100%', 
+        mb: 4,
+        border: '1px solid rgba(139, 92, 246, 0.15)',
+        borderRadius: 4,
+        overflow: 'hidden',
+        boxShadow: '0 15px 35px -15px rgba(0,0,0,0.7)',
+        '& .leaflet-container': {
+          background: '#0a0710',
+          fontFamily: 'inherit',
+        },
+        '& .leaflet-popup-content-wrapper': {
+          backgroundColor: '#110c1c',
+          color: '#ffffff',
+          border: '1px solid rgba(139, 92, 246, 0.3)',
+          borderRadius: 2,
+        },
+        '& .leaflet-popup-tip': {
+          backgroundColor: '#110c1c',
+          border: '1px solid rgba(139, 92, 246, 0.3)',
+        }
+      }}>
+        <MapContainer center={[14.604253, 120.994314]} zoom={13} style={{ height: '100%', width: '100%' }}>
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          />
+          <Marker position={[14.604253, 120.994314]}>
+            <Popup>
+              <strong style={{ color: '#C084FC' }}>National University-Manila</strong> <br />
+              <p style={{ margin: '8px 0 0 0', color: '#a1a1aa', fontSize: '0.85rem' }}>
+                <i>551 F Jhocson St, Sampaloc, Manila, 1008 Metro Manila</i>
+              </p>
+            </Popup>
+          </Marker>
+        </MapContainer>
       </Box>
     </Box>
   );
