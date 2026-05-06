@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { 
   Box, 
   Button, 
@@ -6,8 +6,6 @@ import {
   CardContent, 
   Stack, 
   Typography, 
-  TextField, 
-  MenuItem,
   alpha 
 } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
@@ -30,7 +28,6 @@ const columns = [
   },
 ];
 
-// Enriched dummy data to make the filters functional
 const rows = [
   { id: 1, lastName: 'Snow', firstName: 'Jon', age: 14, username: 'jsnow', email: 'jon@stark.com', role: 'admin', gender: 'male', isActive: true },
   { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 31, username: 'cersei_l', email: 'cersei@lannister.com', role: 'editor', gender: 'female', isActive: false },
@@ -45,29 +42,6 @@ const rows = [
 
 const ReportsPage = () => {
   const printRef = useRef(null);
-
-  // Filter States
-  const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
-  const [genderFilter, setGenderFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-
-  // Filter Logic
-  const filteredRows = rows.filter((row) => {
-    const searchLower = searchQuery.toLowerCase();
-    const matchesSearch = 
-      !searchQuery || 
-      (row.firstName?.toLowerCase().includes(searchLower)) ||
-      (row.lastName?.toLowerCase().includes(searchLower)) ||
-      (row.email?.toLowerCase().includes(searchLower)) ||
-      (row.username?.toLowerCase().includes(searchLower));
-    
-    const matchesRole = !roleFilter || row.role === roleFilter;
-    const matchesGender = !genderFilter || row.gender === genderFilter;
-    const matchesStatus = statusFilter === '' || row.isActive === (statusFilter === 'active');
-
-    return matchesSearch && matchesRole && matchesGender && matchesStatus;
-  });
 
   const handlePrint = () => {
     const printContent = printRef.current;
@@ -122,14 +96,6 @@ const ReportsPage = () => {
               color: #6b7280;
               line-height: 1.5;
             }
-            .filter-summary {
-              background: #f3f4f6;
-              padding: 10px;
-              border-radius: 4px;
-              margin-top: 10px;
-              font-size: 13px;
-            }
-            /* Clean up print view to avoid dark mode artifacts */
             .report-content .MuiCard-root, .report-content .MuiBox-root {
               box-shadow: none !important;
               border: 1px solid #e5e7eb !important;
@@ -150,13 +116,6 @@ const ReportsPage = () => {
               <h1>Official Reports Summary</h1>
               <p>Analytics overview for generated reports, category breakdown, and current user data.</p>
               <p><strong>Prepared on:</strong> ${exportedAt}</p>
-              <div class="filter-summary">
-                <strong>Applied Filters:</strong> 
-                Search: "${searchQuery || 'None'}" | 
-                Role: ${roleFilter || 'All'} | 
-                Gender: ${genderFilter || 'All'} | 
-                Status: ${statusFilter || 'All'}
-              </div>
             </header>
             <section class="report-content">
               ${printContent.outerHTML}
@@ -171,43 +130,12 @@ const ReportsPage = () => {
     setTimeout(() => { printWindow.print(); }, 500); 
   };
 
-  // Shared styles derived from Dashboard.jsx
   const darkCardSx = {
     backgroundColor: '#0a0710',
     border: '1px solid rgba(139, 92, 246, 0.15)',
     borderRadius: 4,
     boxShadow: '0 15px 35px -15px rgba(0,0,0,0.7)',
     color: '#ffffff'
-  };
-
-  const darkInputSx = {
-    '& .MuiOutlinedInput-root': {
-      color: '#ffffff',
-      backgroundColor: 'rgba(10, 7, 16, 0.5)',
-      borderRadius: 2,
-      '& fieldset': { borderColor: 'rgba(139, 92, 246, 0.2)' },
-      '&:hover fieldset': { borderColor: 'rgba(139, 92, 246, 0.4)' },
-      '&.Mui-focused fieldset': { borderColor: '#8B5CF6' },
-    },
-    '& .MuiInputLabel-root': { color: '#a1a1aa' },
-    '& .MuiInputLabel-root.Mui-focused': { color: '#C084FC' },
-    '& .MuiSvgIcon-root': { color: '#a1a1aa' }
-  };
-
-  const darkMenuProps = {
-    PaperProps: {
-      sx: {
-        bgcolor: '#0a0710',
-        color: '#ffffff',
-        border: '1px solid rgba(139, 92, 246, 0.2)',
-        '& .MuiMenuItem-root:hover': {
-          backgroundColor: alpha('#8B5CF6', 0.15),
-        },
-        '& .Mui-selected': {
-          backgroundColor: alpha('#8B5CF6', 0.25) + ' !important',
-        }
-      }
-    }
   };
 
   return (
@@ -244,64 +172,6 @@ const ReportsPage = () => {
           Export PDF Report
         </Button>
       </Stack>
-
-      {/* SEARCH & FILTER BAR */}
-      <Card sx={{ mb: 6, ...darkCardSx }}>
-        <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
-            <TextField
-              label="Search (Name, Username, Email)"
-              variant="outlined"
-              size="small"
-              fullWidth
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              sx={darkInputSx}
-            />
-            <TextField
-              select
-              label="Role"
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              size="small"
-              sx={{ minWidth: 140, ...darkInputSx }}
-              SelectProps={{ MenuProps: darkMenuProps }}
-            >
-              <MenuItem value="">All Roles</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
-              <MenuItem value="editor">Editor</MenuItem>
-              <MenuItem value="viewer">Viewer</MenuItem>
-            </TextField>
-            <TextField
-              select
-              label="Gender"
-              value={genderFilter}
-              onChange={(e) => setGenderFilter(e.target.value)}
-              size="small"
-              sx={{ minWidth: 140, ...darkInputSx }}
-              SelectProps={{ MenuProps: darkMenuProps }}
-            >
-              <MenuItem value="">All Genders</MenuItem>
-              <MenuItem value="male">Male</MenuItem>
-              <MenuItem value="female">Female</MenuItem>
-              <MenuItem value="other">Other</MenuItem>
-            </TextField>
-            <TextField
-              select
-              label="Status"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              size="small"
-              sx={{ minWidth: 140, ...darkInputSx }}
-              SelectProps={{ MenuProps: darkMenuProps }}
-            >
-              <MenuItem value="">All Statuses</MenuItem>
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="inactive">Inactive</MenuItem>
-            </TextField>
-          </Stack>
-        </CardContent>
-      </Card>
 
       <Stack ref={printRef} spacing={6}>
         <Stack direction={{ xs: 'column', lg: 'row' }} spacing={6}>
@@ -352,14 +222,14 @@ const ReportsPage = () => {
 
         <Box sx={{ mb: 1, mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
           <Typography variant="overline" sx={{ fontWeight: 'bold', color: '#8B5CF6', letterSpacing: '0.2em', fontSize: '0.75rem' }}>
-            Filtered User Data ({filteredRows.length} Results)
+            User Data ({rows.length} Results)
           </Typography>
           <Box sx={{ flexGrow: 1, height: '1px', background: 'rgba(139, 92, 246, 0.2)' }} />
         </Box>
 
         <Box sx={{ width: '100%' }}>
           <DataGrid
-            rows={filteredRows}
+            rows={rows}
             columns={columns}
             initialState={{
               pagination: {

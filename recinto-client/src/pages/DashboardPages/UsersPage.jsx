@@ -3,6 +3,8 @@ import {
   Alert,
   Box,
   Button,
+  Card,
+  CardContent,
   Chip,
   Dialog,
   DialogActions,
@@ -86,6 +88,27 @@ const UsersPage = () => {
   const [form, setForm] = useState(blankForm);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [genderFilter, setGenderFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+
+  const filteredUsers = users.filter((user) => {
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch =
+      !searchQuery ||
+      user.firstName?.toLowerCase().includes(searchLower) ||
+      user.lastName?.toLowerCase().includes(searchLower) ||
+      user.email?.toLowerCase().includes(searchLower) ||
+      user.username?.toLowerCase().includes(searchLower);
+
+    const matchesRole = !roleFilter || user.role === roleFilter;
+    const matchesGender = !genderFilter || user.gender === genderFilter;
+    const matchesStatus = statusFilter === '' || user.isActive === (statusFilter === 'active');
+
+    return matchesSearch && matchesRole && matchesGender && matchesStatus;
+  });
 
   const resetForm = () => {
     setForm({ ...blankForm });
@@ -421,16 +444,73 @@ const UsersPage = () => {
         </Button>
       </Stack>
 
+      <Card sx={{ mb: 4, bgcolor: '#0a0710', border: '1px solid rgba(139, 92, 246, 0.15)', borderRadius: 3, boxShadow: '0 15px 35px -15px rgba(0,0,0,0.7)' }}>
+        <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <TextField
+              label="Search..."
+              variant="outlined"
+              size="small"
+              fullWidth
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={darkInputSx}
+            />
+            <TextField
+              select
+              label="Role"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              size="small"
+              sx={{ minWidth: 160, ...darkInputSx }}
+              SelectProps={{ MenuProps: darkMenuProps }}
+            >
+              <MenuItem value="">All Roles</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="editor">Editor</MenuItem>
+              <MenuItem value="viewer">Viewer</MenuItem>
+            </TextField>
+            <TextField
+              select
+              label="Gender"
+              value={genderFilter}
+              onChange={(e) => setGenderFilter(e.target.value)}
+              size="small"
+              sx={{ minWidth: 160, ...darkInputSx }}
+              SelectProps={{ MenuProps: darkMenuProps }}
+            >
+              <MenuItem value="">All Genders</MenuItem>
+              <MenuItem value="male">Male</MenuItem>
+              <MenuItem value="female">Female</MenuItem>
+              <MenuItem value="other">Other</MenuItem>
+            </TextField>
+            <TextField
+              select
+              label="Status"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              size="small"
+              sx={{ minWidth: 160, ...darkInputSx }}
+              SelectProps={{ MenuProps: darkMenuProps }}
+            >
+              <MenuItem value="">All Statuses</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="inactive">Inactive</MenuItem>
+            </TextField>
+          </Stack>
+        </CardContent>
+      </Card>
+
       {seed.error ? (
         <Alert severity="error" sx={{ mb: 4, bgcolor: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 2 }}>
           {seed.error}
         </Alert>
       ) : null}
 
-      {users.length ? (
+      {filteredUsers.length ? (
         <Box sx={{ height: 650, width: '100%' }}>
           <DataGrid
-            rows={users}
+            rows={filteredUsers}
             columns={columns}
             disableRowSelectionOnClick
             pageSizeOptions={[5, 10, 20]}
@@ -485,7 +565,7 @@ const UsersPage = () => {
         </Box>
       ) : (
         <Alert severity="info" sx={{ bgcolor: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: 2 }}>
-          No users found. Use Add User to create your first record.
+          No users found matching your criteria.
         </Alert>
       )}
 
